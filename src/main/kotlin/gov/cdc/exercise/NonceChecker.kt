@@ -4,23 +4,22 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import kotlin.math.abs
+import kotlin.system.exitProcess
 
 class NonceChecker {
     val MAX_DURATION: Int = 5 * 60
     /**
      * Main method to process a file and try to find duplicate nonce.
      *
-     * Returns a list of warnings of nonce re-used wihtin 5 minutes.
+     * Returns a list of warnings of nonce re-used within nonceTTL minutes.
      */
     fun processFile(filePath: String, nonceTTL: Int = MAX_DURATION): List<String> {
-        val loader = FileLoader()
-        val elements = loader.loadFile(filePath)
+        val elements = FileLoader.loadFile(filePath)
         val dupes =  findDuplicates(elements)
         return getWarnings(dupes, nonceTTL)
     }
     fun processResourceFile(fileName: String, nonceTTL: Int = MAX_DURATION): List<String> {
-        val loader = FileLoader()
-        val elements = loader.loadFileFromResource(fileName)
+        val elements = FileLoader.loadFileFromResource(fileName)
         val dupes =  findDuplicates(elements)
         return getWarnings(dupes, nonceTTL)
     }
@@ -36,7 +35,8 @@ class NonceChecker {
         val duplicates = mutableMapOf<String, MutableList<LocalDateTime>>()
         val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS")
 
-        //According to Requirements, the file is order by timestamp - we can use this to our advantage to identify the most recent one.
+        //According to Requirements, the file is order by timestamp - we can use this to our advantage to identify
+        // the most recent one.
         nonceList.reversed().forEach {
             if (duplicates.containsKey(it.first)) {
                 val existingList = duplicates[it.first]!!
@@ -63,18 +63,24 @@ class NonceChecker {
         }
         return warnings
     }
-
 }
 
 //Simple method to process files passed as arguments via command line
 fun main(args: Array<String>) {
     val checker =  NonceChecker()
-    if (args.size < 1 || args.size > 2) {
+    if (args.size < 1 || args.size > 2)
         showUsage()
-    }
+    try {
+        val startTime = System.currentTimeMillis()
+        val warnings =
+            if (args.size == 2) checker.processFile(args[0], args[1].toInt() * 60) else checker.processFile((args[0]))
+        val endTime = System.currentTimeMillis()
+        warnings.forEach { println(it) }
+        println("Duplication identification process took ${endTime - startTime} milliseconds")
+    } catch (e: NumberFormatException) {
+        showUsage()
 
-    val warnings =if (args.size == 2) checker.processFile(args[0], args[1].toInt()*60) else checker.processFile((args[0]))
-    warnings.forEach{ println(it)}
+    }
 }
 
 fun showUsage() {
@@ -89,5 +95,5 @@ fun showUsage() {
             - nonceTTL (Optional:Default 5 min): is the time to live for a nonce. A duplicate within this time period
                   is considered a duplicate. (pass values in minutes)
     """)
-    System.exit(1)
+    exitProcess(1)
 }
