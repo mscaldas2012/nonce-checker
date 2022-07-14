@@ -1,0 +1,51 @@
+apply plugin: 'java'
+apply plugin: 'kotlin'
+
+group = 'cdc.gov.tools'
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+repositories {
+    mavenCentral()
+}
+buildscript {
+    ext.kotlin_version = '1.7.10'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+}
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'gov.cdc.exercise.NonceCheckerKt'
+        )
+    }
+    from {
+        configurations.compileClasspath.filter{ it.exists() }.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    duplicatesStrategy "exclude"
+}
