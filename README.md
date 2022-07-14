@@ -19,4 +19,21 @@ Once the project is successfully built, you can run it with the following comman
 ```cmd
 java -jar nonce_checker.jar <FILE Path> (<nonceTTL>)
 ```
+<code>(< nonceTTL >)</code> is an optional parameter. If not provided, the cod ewill use 5 minutes.
+
+If you execute the program without any parameters, the program will show how to use it.
+
+```
+  You must provide a file path as a single parameter to run this code.
+        
+        Ex.:
+            java gov.cdc.exercise.NonceChecker <FilePath> <nonceTTL>
+            
+        Where:
+            - FIlePath is the path to the file to be processed
+            - nonceTTL (Optional:Default 5 min): is the time to live for a nonce. A duplicate within this time period
+                  is considered a duplicate. (pass values in minutes)
+
+```
+
 

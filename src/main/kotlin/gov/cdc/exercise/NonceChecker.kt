@@ -82,7 +82,7 @@ fun showUsage() {
         You must provide a file path as a single parameter to run this code.
         
         Ex.:
-            java gov.cdc.exercise.NonceChecker <FilePath> <nonceTTL>
+            java -jar nonce_checker.jar <FilePath> <nonceTTL>
             
         Where:
             - FIlePath is the path to the file to be processed
