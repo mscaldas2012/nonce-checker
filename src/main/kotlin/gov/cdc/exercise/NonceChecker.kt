@@ -66,7 +66,7 @@ class NonceChecker {
 
 }
 
-//Siople method to process the existing nonce.txt file in resources folder.
+//Simple method to process files passed as arguments via command line
 fun main(args: Array<String>) {
     val checker =  NonceChecker()
     if (args.size < 1 || args.size > 2) {
