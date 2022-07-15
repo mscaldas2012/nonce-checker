@@ -7,8 +7,11 @@ import kotlin.math.abs
 import kotlin.system.exitProcess
 
 class NonceChecker {
-    val DEFAULT_MAX_DURATION: Int = 5 * 60
-    /**
+    companion object {
+        val DEFAULT_MAX_DURATION: Int = 5 * 60
+        val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS")
+    }
+        /**
      * Main method to process a file and try to find duplicate nonce.
      *
      * Returns a list of warnings of nonce re-used within nonceTTL minutes.
@@ -33,16 +36,15 @@ class NonceChecker {
     */
     private fun findDuplicates(nonceList: List<Pair<String, String>>): Map<String, List<LocalDateTime>> {
         val duplicates = mutableMapOf<String, MutableList<LocalDateTime>>()
-        val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS")
 
         //According to Requirements, the file is order by timestamp - we can use this to our advantage to identify
         // the most recent one.
         nonceList.reversed().forEach {
             if (duplicates.containsKey(it.first)) {
                 val existingList = duplicates[it.first]!!
-                existingList.add( LocalDateTime.parse(it.second, pattern))
+                existingList.add( it.second.to_date(pattern))
             } else {
-                duplicates[it.first] = mutableListOf( LocalDateTime.parse(it.second, pattern))
+                duplicates[it.first] = mutableListOf( it.second.to_date(pattern))
             }
         }
         return duplicates.filter { it.value.size >1 }
@@ -61,6 +63,10 @@ class NonceChecker {
         }
         return warnings
     }
+}
+
+fun String.to_date(pattern:DateTimeFormatter ): LocalDateTime {
+    return LocalDateTime.parse(this, pattern)
 }
 
 //Simple method to process files passed as arguments via command line

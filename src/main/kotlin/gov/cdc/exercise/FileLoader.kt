@@ -1,7 +1,6 @@
 package gov.cdc.exercise
 
 import java.io.File
-import java.io.FileNotFoundException
 
 class FileLoader {
     companion object {
