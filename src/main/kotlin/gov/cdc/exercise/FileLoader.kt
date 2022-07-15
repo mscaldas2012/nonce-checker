@@ -4,14 +4,12 @@ import java.io.File
 
 class FileLoader {
     companion object {
+        private val NEW_LINE = "[\r\n]+".toRegex()
         /**
          * Loads all contents of a nonce file into a List of Pairs (nonce, timestamp)
          */
-        fun loadFileFromResource(fileName: String): List<Pair<String, String>> {
-            val fileContent = FileLoader::class.java.getResource(fileName).readText()
-
-            val lines = fileContent.split("[\r\n]+".toRegex())
-            val result: List<Pair<String, String>> = lines
+        private fun convertContentToList(content: List<String>): List<Pair<String, String>> {
+            val result: List<Pair<String, String>> = content
                 //Filter empty lines or lines that don't have both a nonce and timestamp
                 .filter { it.isNotEmpty() && it.split("\t").size == 2 }
                 //Convert the String into a Pair of strings
@@ -22,16 +20,15 @@ class FileLoader {
         }
 
         fun loadFile(filePath: String): List<Pair<String, String>> {
-            File(filePath).useLines {
-                val result: List<Pair<String, String>> = it
-                    //Filter empty lines or lines that don't have both a nonce and timestamp
-                    .filter { it.isNotEmpty() && it.split("\t").size == 2 }
-                    //Convert the String into a Pair of strings
-                    .map {
-                        it.split("\t").let { s -> Pair(s[0], s[1]) }
-                    }.toList()
-                return result
+            val lines = File(filePath).readLines()
+            return convertContentToList(lines)
+        }
+        fun loadFileFromResource(fileName: String): List<Pair<String, String>> {
+            FileLoader::class.java.getResource(fileName).apply {
+                val lines = this.readText().split(NEW_LINE)
+                return convertContentToList(lines)
             }
         }
+
     }
 }
