@@ -7,21 +7,21 @@ import kotlin.math.abs
 import kotlin.system.exitProcess
 
 class NonceChecker {
-    val MAX_DURATION: Int = 5 * 60
+    val DEFAULT_MAX_DURATION: Int = 5 * 60
     /**
      * Main method to process a file and try to find duplicate nonce.
      *
      * Returns a list of warnings of nonce re-used within nonceTTL minutes.
      */
-    fun processFile(filePath: String, nonceTTL: Int = MAX_DURATION): List<String> {
+    fun processFile(filePath: String, nonceTTL: Int = DEFAULT_MAX_DURATION): List<String> {
         val elements = FileLoader.loadFile(filePath)
         val dupes =  findDuplicates(elements)
-        return getWarnings(dupes, nonceTTL)
+        return generateWarnings(dupes, nonceTTL)
     }
-    fun processResourceFile(fileName: String, nonceTTL: Int = MAX_DURATION): List<String> {
+    fun processResourceFile(fileName: String, nonceTTL: Int = DEFAULT_MAX_DURATION): List<String> {
         val elements = FileLoader.loadFileFromResource(fileName)
         val dupes =  findDuplicates(elements)
-        return getWarnings(dupes, nonceTTL)
+        return generateWarnings(dupes, nonceTTL)
     }
     /**
      * Helper method to find duplicate nonces...
@@ -48,11 +48,9 @@ class NonceChecker {
         return duplicates.filter { it.value.size >1 }
     }
     /**
-     * Converts the Duplicates into warnings , as long as they are within 5 min of each other!
-     *
-     * Retruns a List of Warnings for nonces that were reused in less than 5 minutes.
+     * Converts the Duplicates into warnings , as long as they are within nonceTTL min of each other!
      */
-    private fun getWarnings(dupes: Map<String, List<LocalDateTime>>, nonceTTL: Int): List<String> {
+    private fun generateWarnings(dupes: Map<String, List<LocalDateTime>>, nonceTTL: Int): List<String> {
         val warnings = mutableListOf<String>()
         dupes.forEach {
             for (idx in 0 until  it.value.size - 1) {
