@@ -11,7 +11,7 @@ class NonceChecker {
         val DEFAULT_MAX_DURATION: Int = 5 * 60
         val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS")
     }
-        /**
+    /**
      * Main method to process a file and try to find duplicate nonce.
      *
      * Returns a list of warnings of nonce re-used within nonceTTL minutes.
@@ -21,18 +21,13 @@ class NonceChecker {
         val dupes =  findDuplicates(elements)
         return generateWarnings(dupes, nonceTTL)
     }
-    fun processResourceFile(fileName: String, nonceTTL: Int = DEFAULT_MAX_DURATION): List<String> {
-        val elements = FileLoader.loadFileFromResource(fileName)
-        val dupes =  findDuplicates(elements)
-        return generateWarnings(dupes, nonceTTL)
-    }
     /**
      * Helper method to find duplicate nonces...
      * Requirements specify that each duplicate must be flagged as such and identify the most recent.
-     * The file is a log file, where timestamps are ordered - so no need to use sort.
-     * Simply using a reverse so that we start from the most recent (never a duplicate)
+     * The file is a log file, where timestamps are ordered - so no need to  sort.
+     * Simply using a reverse so that we start from the most recent
      *
-     * Result is a Map, where the key is the nonce and the value is the list of all Timestamps associated with it.
+     * Result is a Map, where the key is the nonce and the value is the list of all timestamps associated with it.
     */
     private fun findDuplicates(nonceList: List<Pair<String, String>>): Map<String, List<LocalDateTime>> {
         val duplicates = mutableMapOf<String, MutableList<LocalDateTime>>()
@@ -50,7 +45,7 @@ class NonceChecker {
         return duplicates.filter { it.value.size >1 }
     }
     /**
-     * Converts the Duplicates into warnings , as long as they are within nonceTTL min of each other!
+     * Converts the Duplicates into warnings , as long as they are within "nonceTTL" min. of each other!
      */
     private fun generateWarnings(dupes: Map<String, List<LocalDateTime>>, nonceTTL: Int): List<String> {
         val warnings = mutableListOf<String>()
@@ -64,8 +59,8 @@ class NonceChecker {
         return warnings
     }
 }
-
-fun String.to_date(pattern:DateTimeFormatter ): LocalDateTime {
+//Extension function to transform a String into LocalDateTime based on given pattern.
+fun String.to_date(pattern: DateTimeFormatter): LocalDateTime {
     return LocalDateTime.parse(this, pattern)
 }
 
@@ -77,7 +72,8 @@ fun main(args: Array<String>) {
     try {
         val startTime = System.currentTimeMillis()
         val warnings =
-            if (args.size == 2) checker.processFile(args[0], args[1].toInt() * 60) else checker.processFile((args[0]))
+            if (args.size == 2) checker.processFile(args[0], args[1].toInt() * 60)
+            else checker.processFile((args[0]))
         val endTime = System.currentTimeMillis()
         warnings.forEach { println(it) }
         println("Duplication identification process took ${endTime - startTime} milliseconds")
@@ -96,8 +92,8 @@ fun showUsage() {
             
         Where:
             - FIlePath is the path to the file to be processed
-            - nonceTTL (Optional:Default 5 min): is the time to live for a nonce. A duplicate within this time period
-                  is considered a duplicate. (pass values in minutes)
+            - nonceTTL (Optional:Default 5 min): is the time to live for a nonce in minutes. A duplicate within 
+                   this time period is considered an error. 
     """)
     exitProcess(1)
 }

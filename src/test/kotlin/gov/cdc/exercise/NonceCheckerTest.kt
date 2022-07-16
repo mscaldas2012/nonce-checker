@@ -7,7 +7,7 @@ internal class NonceCheckerTest {
     @Test
     fun testProcessFile() {
         val checker = NonceChecker()
-        val warnings = checker.processResourceFile("/nonce_test.txt")
+        val warnings = checker.processFile("./src/test/resources/nonce_test.txt")
         warnings.forEach  {println(it)}
         assert (warnings.size == 5)
     }
